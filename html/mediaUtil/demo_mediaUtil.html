@@ -1,0 +1,131 @@
+<!-- 
+        作者：dailc 
+        时间：2016-03-10 16:12:34
+        描述：  多媒体页面
+-->
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title></title>
+		<link rel="stylesheet" href="../../css/mui.min.css" />
+	</head>
+
+	<body>
+		<header id="header" class="mui-bar mui-bar-nav bg-blue">
+			<h1 id="title" class="mui-title">影音操作相关</h1>
+		</header>
+		<div class="mui-content">
+			<!--<button class="mui-btn mui-btn-block demoPage videoPage" id="demo_videoPlaySimple.html">视频播放示例</button>-->
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right">
+						<p>山东卫视</p>
+					</a>
+				</li>
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right">
+						Item 2
+					</a>
+				</li>
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right">
+						Item 3
+					</a>
+				</li>
+			</ul>
+		</div>
+		<script type="text/javascript" src="../../js/jquery-1.8.0.js"></script>
+		<script type="text/javascript" src="../../js/mui.min.js"></script>
+		<script type="text/javascript" src="../../js/zepto.min.js"></script>
+		<script>
+			/**
+			 * @description 设置点击监听 
+			 */
+			Zepto('.demoPage').on('tap', function() {
+				var id = Zepto(this).attr('id');
+				if(id != null && id != '') {
+					//创建页面
+					//获取class,如果名字为video,开启硬件加速
+					//hardwareAccelerated
+					mui.openWindow(id, id, {
+						styles: {
+							hardwareAccelerated: true
+						}
+					});
+				}
+			}); 
+			mui.ready(function() {
+				getInfo()
+			})
+
+			function getInfo() {
+				mui.ajax('http://hdtv.neu6.edu.cn/', {
+					type: 'get',
+					timeout: 1000,
+					success: function(data) {
+						//mui.alert(data);
+						var content = $(data).find("tbody");
+						var temp = JSON.stringify(data);
+						//mui.alert(content.html())
+						var hang = content.find("tr");
+						//mui.alert($(hang.get(30)).html());
+						//	for(var i=0;i<hang.length;i++){
+						var table = document.body.querySelector('.mui-table-view');
+						table.innerHTML="";
+						for(var i = 0; i < hang.length; i++) {
+							var lie = $(hang.get(i)).find("td");
+							for(var j = 0; j < lie.length; j++) {
+								var name = $(lie.get(j)).text().split(" ")[0];
+								var li = document.createElement("li");
+								li.className = "mui-table-view-cell";
+								li.id = $(lie.get(j)).find("a").attr("href");
+								li.innerHTML = name;
+								table.appendChild(li);
+								//	console.log($(lie.get(j)).html());
+								//	console.log($(lie.get(j)).find("a").attr("href"));
+								//console.log($(lie.get(j)).find("a")[1].html()); 
+							}
+						}
+
+					},
+					error: function() {
+						mui.toast("error");
+					}
+				})
+			}
+			function getMore(url){
+				mui.ajax(url,{
+					type:'get',
+					timeout:1000,
+					success:function(data){
+						//mui.alert(JSON.stringify(data));
+						var input = $(data).find("input");
+						var address = $(input).attr("value");
+						 
+					//	document.getElementById("video").src=address; 
+						 openPage(address);
+					}
+				})
+			}
+			mui(".mui-table-view").on('tap', ".mui-table-view-cell", function() {
+				var the_id = this.getAttribute("id");
+				getMore("http://hdtv.neu6.edu.cn/"+the_id);
+				
+			})
+			function openPage(address){
+				localStorage.setItem("address",address);
+				mui.openWindow({
+					url: "demo_videoPlaySimple.html",
+					id: "demo_videoPlaySimple.html", 
+					styles: {
+						hardwareAccelerated: true
+					}
+				})
+			}
+		</script>
+	</body>
+
+</html>
